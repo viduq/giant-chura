@@ -3,12 +3,12 @@
 This game includes assets licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
 Below is a list of works along with proper attribution:
 
--File: resources/spritesheet-scrabling.png
--Title: 32 x 32 Pixel Isometric Tiles
--Author: scrabling
--Source: https://scrabling.itch.io/pixel-isometric-tiles
--License: CC BY 4.0
--Modifications: None
+- File: resources/spritesheet-scrabling.png
+- Title: 32 x 32 Pixel Isometric Tiles
+- Author: scrabling
+- Source: https://scrabling.itch.io/pixel-isometric-tiles
+- License: CC BY 4.0
+- Modifications: None
 
 
 _________________________
