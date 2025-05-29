@@ -3,6 +3,9 @@
 
 #include "raylib.h"
 
+#define TILEWIDTH 64
+#define TILEHEIGHT 32
+
 /*
   this demo is mostly taken from @javidx9's excellent tutorial
   on isometric tiles on youtube https://www.youtube.com/watch?v=ukkbNKTgf5U
@@ -12,22 +15,33 @@ typedef struct {
   int x, y;
 } Vector2i;
 
+Rectangle tileFromTileMap(int numberX, int numberY, bool hasDoubleHeight) {
+  int heightFaktor;
+  if (hasDoubleHeight) {
+    heightFaktor = 2;
+  } else {
+    heightFaktor = 1;
+  }
+  Rectangle rec = {numberX * TILEWIDTH, numberY * TILEHEIGHT, TILEWIDTH, TILEHEIGHT * heightFaktor};
+  return rec;
+}
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
 int main(void) {
   // Initialization
   //--------------------------------------------------------------------------------------
-  const int screenWidth = 2500;
-  const int screenHeight = 1500;
+  const int screenWidth = 1750;
+  const int screenHeight = 750;
 
   Vector2i vWorldSize = {15, 15};
-  Vector2i vTileSize = {128, 64};
+  Vector2i vTileSize = {TILEWIDTH, TILEHEIGHT};
   Vector2i vOrigin = {10, 1};
   int *pWorld = (int *)calloc(vWorldSize.x * vWorldSize.y, sizeof(int));
 
-  char *tiles_file = "src/resources/new_tilemap.png";
-  char *cheating_tile = "src/resources/new_cheating_tile.png";
+  char *tiles_file = "src/resources/tilemap.png";
+  char *cheating_tile = "src/resources/cheating_tile.png";
 
   InitWindow(screenWidth, screenHeight, "raylib isometric tiles demo");
 
@@ -36,23 +50,16 @@ int main(void) {
   Image img = LoadImage(cheating_tile);       // Load as image for getting single pixels
   Color *pixels = LoadImageColors(img);
 
-  int tileWidth = 128;
-  int tileHeight = 64;
-
   int tileX = 5;
   int tileY = 3;
 
-  Rectangle emptyTile = {0, 0, 128, 64};
-  Rectangle selectedTile = {1 * 128, 0, 128, 64};
-  Rectangle grassTile = {2 * 128, 0, 128, 64};
-  Rectangle sandTile = {3 * 128, 0, 128, 64};
-  Rectangle waterTile = {4 * 128, 0, 128, 64};
+  Rectangle emptyTile = tileFromTileMap(0, 0, false);
+  Rectangle selectedTile = tileFromTileMap(1, 0, false);
+  Rectangle grassTile = tileFromTileMap(2, 0, false);
+  Rectangle sandTile = tileFromTileMap(3, 0, false);
+  Rectangle waterTile = tileFromTileMap(4, 0, false);
 
-  Rectangle treeTile = {0 * 128, 2 * 64, 128, 128};
-
-  // Rectangle waterTile = {3 * 40, 1 * 40, 40, 20};
-  // Rectangle christmasTree = {0, 1 * 20, 40, 40};
-  // Rectangle appleTree = {1 * 40, 1 * 20, 40, 40};
+  Rectangle treeTile = tileFromTileMap(0, 2, true);
 
   SetTargetFPS(60);  // Set our game to run at 60 frames-per-second
   //--------------------------------------------------------------------------------------
@@ -83,8 +90,8 @@ int main(void) {
       vSelected.x += 1;
     }
 
-    float selectedX = (vSelected.x - vSelected.y) * (tileWidth / 2) + (vOrigin.x * vTileSize.x);
-    float selectedY = (vSelected.x + vSelected.y) * (tileHeight / 2) + (vOrigin.y * vTileSize.y);
+    float selectedX = (vSelected.x - vSelected.y) * (vTileSize.x / 2) + (vOrigin.x * vTileSize.x);
+    float selectedY = (vSelected.x + vSelected.y) * (vTileSize.y / 2) + (vOrigin.y * vTileSize.y);
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
       // printf("vorher: %d\n", pWorld[vSelected.y * vWorldSize.x + vSelected.x]);
@@ -107,9 +114,9 @@ int main(void) {
 
     for (int y = 0; y < vWorldSize.y; y++) {
       for (int x = 0; x < vWorldSize.x; x++) {
-        float screenX = (x - y) * (tileWidth / 2) + (vOrigin.x * vTileSize.x);
-        float screenY = (x + y) * (tileHeight / 2) + (vOrigin.y * vTileSize.y);
-        Rectangle destRec = {screenX, screenY, tileWidth, tileHeight};
+        float screenX = (x - y) * (vTileSize.x / 2) + (vOrigin.x * vTileSize.x);
+        float screenY = (x + y) * (vTileSize.y / 2) + (vOrigin.y * vTileSize.y);
+        Rectangle destRec = {screenX, screenY, vTileSize.x, vTileSize.y};
 
         switch (pWorld[y * vWorldSize.x + x]) {
           case 0:
@@ -125,8 +132,8 @@ int main(void) {
             DrawTexturePro(tiles, waterTile, destRec, (Vector2){0, 0}, 0.0f, WHITE);
             break;
           case 4:
-            destRec.y -= tileHeight;
-            destRec.height = tileHeight * 2;
+            destRec.y -= vTileSize.y;
+            destRec.height = vTileSize.y * 2;
             DrawTexturePro(tiles, treeTile, destRec, (Vector2){0, 0}, 0.0f, WHITE);
             break;
           // case 5:
@@ -140,7 +147,7 @@ int main(void) {
       }
     }
 
-    Rectangle destRecSelected = {selectedX, selectedY, tileWidth, tileHeight};
+    Rectangle destRecSelected = {selectedX, selectedY, vTileSize.x, vTileSize.y};
     DrawTexturePro(tiles, selectedTile, destRecSelected, (Vector2){0, 0}, 0.0f, GREEN);
 
     EndDrawing();
